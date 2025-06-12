@@ -1,0 +1,14 @@
+{
+  "name": "openbanking-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.9"
+  }
+}
