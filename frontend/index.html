@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenBanking Demo</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 2rem; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      function App() {
+        const [accounts, setAccounts] = React.useState([]);
+
+        React.useEffect(() => {
+          fetch('/api/accounts')
+            .then(res => res.json())
+            .then(data => setAccounts(data.accounts || data))
+            .catch(err => console.error('Failed to fetch accounts', err));
+        }, []);
+
+        return (
+          <div>
+            <h1>Your Accounts</h1>
+            <ul>
+              {accounts.map(acc => (
+                <li key={acc.accountUid || acc.uid}>{acc.accountName || acc.name}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
