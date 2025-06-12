@@ -14,6 +14,34 @@
   <body>
     <div id="root"></div>
     <script type="text/babel">
+      function Account({ account }) {
+        const [tx, setTx] = React.useState([]);
+
+        React.useEffect(() => {
+          fetch(`/api/accounts/${account.accountUid || account.uid}/transactions`)
+            .then(res => res.json())
+            .then(data => setTx(data.transactions || data._embedded?.transactions || data))
+            .catch(err => console.error('Failed to fetch transactions', err));
+        }, [account]);
+
+        return (
+          <li>
+            <h2>{account.accountName || account.name}</h2>
+            <p>UID: {account.accountUid || account.uid}</p>
+            {account.currency && <p>Currency: {account.currency}</p>}
+            <h3>Transactions</h3>
+            <ul>
+              {tx.map(t => (
+                <li key={t.feedItemUid || t.id}>
+                  {t.amount ? `${t.amount.currency || ''} ${((t.amount.minorUnits || 0) / 100).toFixed(2)}` : ''}
+                  {t.narrative ? ` - ${t.narrative}` : ''}
+                </li>
+              ))}
+            </ul>
+          </li>
+        );
+      }
+
       function App() {
         const [accounts, setAccounts] = React.useState([]);
 
@@ -29,7 +57,7 @@
             <h1>Your Accounts</h1>
             <ul>
               {accounts.map(acc => (
-                <li key={acc.accountUid || acc.uid}>{acc.accountName || acc.name}</li>
+                <Account key={acc.accountUid || acc.uid} account={acc} />
               ))}
             </ul>
           </div>

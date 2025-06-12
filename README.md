@@ -25,8 +25,14 @@ The official documentation can be found at <https://developer.starlingbank.com/d
 2. Run `npm install` inside the `backend` directory.
 3. Create a `backend/.env` file with at least `STARLING_PERSONAL_TOKEN=<your token>`.
 4. Start the server with `npm start` from the `backend` directory.
-5. Visit <http://localhost:3000> and the React frontend will fetch account data from the backend.
+5. Visit <http://localhost:3000> and the React frontend will fetch account and transaction data from the backend.
 
 ## Repository Status
 
 The repository now includes a minimal backend and frontend implementation located in the `backend` and `frontend` folders.
+
+### New Transactions Endpoint
+
+The backend exposes an additional endpoint `/api/accounts/:accountUid/transactions` which proxies
+recent settled transactions from Starling for the given account. The React
+frontend uses this to display the latest activity for each account.
