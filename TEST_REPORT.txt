@@ -1,0 +1,13 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> openbanking-backend@1.0.0 test
+> jest
+
+PASS test/api.test.js
+PASS test/api.success.test.js
+
+Test Suites: 2 passed, 2 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        0.466 s, estimated 1 s
+Ran all test suites.
