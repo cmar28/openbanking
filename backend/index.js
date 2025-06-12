@@ -28,6 +28,29 @@ app.get('/api/accounts', async (req, res) => {
   }
 });
 
+// Fetch transactions for a specific account
+app.get('/api/accounts/:accountUid/transactions', async (req, res) => {
+  if (!STARLING_TOKEN) {
+    return res.status(500).json({ error: 'STARLING_PERSONAL_TOKEN not set' });
+  }
+  const { accountUid } = req.params;
+  try {
+    const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const url = `https://api.starlingbank.com/api/v2/transactions/account/${accountUid}/settled-transactions?from=${from}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${STARLING_TOKEN}`,
+        'User-Agent': 'openbanking-demo'
+      }
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('Error fetching transactions', err);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
