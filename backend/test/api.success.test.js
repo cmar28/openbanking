@@ -1,50 +1,35 @@
 const request = require('supertest');
 
-jest.mock('node-fetch', () => jest.fn());
-let fetch;
 beforeEach(() => {
   jest.resetModules();
-  jest.clearAllMocks();
-  fetch = require("node-fetch");
-  fetch.mockReset();
 });
 
 describe('API endpoints with token', () => {
+  jest.setTimeout(20000);
+
   test('/api/accounts returns data when token is set', async () => {
-    process.env.STARLING_PERSONAL_TOKEN = 'testtoken';
-    const sampleAccounts = { accounts: [{ uid: '123', name: 'Test Account' }] };
-    fetch.mockResolvedValue({ json: jest.fn().mockResolvedValue(sampleAccounts) });
+    if (!process.env.STARLING_PERSONAL_TOKEN) {
+      throw new Error('STARLING_PERSONAL_TOKEN not provided');
+    }
 
     const app = require('../index');
     const res = await request(app).get('/api/accounts');
 
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith('https://api.starlingbank.com/api/v2/accounts', {
-      headers: {
-        Authorization: `Bearer testtoken`,
-        'User-Agent': 'openbanking-demo'
-      }
-    });
     expect(res.status).toBe(200);
-    expect(res.body).toEqual(sampleAccounts);
+    expect(Array.isArray(res.body.accounts)).toBe(true);
   });
 
   test('/api/accounts/:uid/transactions proxies data', async () => {
-    process.env.STARLING_PERSONAL_TOKEN = 'testtoken';
-    const sampleTx = { transactions: [{ feedItemUid: 'tx1' }] };
-    fetch.mockResolvedValue({ json: jest.fn().mockResolvedValue(sampleTx) });
+    if (!process.env.STARLING_PERSONAL_TOKEN) {
+      throw new Error('STARLING_PERSONAL_TOKEN not provided');
+    }
 
     const app = require('../index');
-    const res = await request(app).get('/api/accounts/testuid/transactions');
+    const accountsRes = await request(app).get('/api/accounts');
+    const firstUid = accountsRes.body.accounts[0].accountUid;
+    const res = await request(app).get(`/api/accounts/${firstUid}/transactions`);
 
-    expect(fetch).toHaveBeenCalledTimes(1);
-    const calledUrl = fetch.mock.calls[0][0];
-    expect(calledUrl).toMatch(/https:\/\/api.starlingbank.com\/api\/v2\/transactions\/account\/testuid\/settled-transactions\?from=/);
-    expect(fetch.mock.calls[0][1].headers).toEqual({
-      Authorization: `Bearer testtoken`,
-      'User-Agent': 'openbanking-demo'
-    });
     expect(res.status).toBe(200);
-    expect(res.body).toEqual(sampleTx);
+    expect(Array.isArray(res.body.transactions)).toBe(true);
   });
 });

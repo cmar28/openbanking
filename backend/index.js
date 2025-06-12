@@ -1,11 +1,15 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const { HttpsProxyAgent } = require('https-proxy-agent');
 const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const STARLING_TOKEN = process.env.STARLING_PERSONAL_TOKEN;
+const proxyAgent = process.env.HTTPS_PROXY
+  ? new HttpsProxyAgent(process.env.HTTPS_PROXY)
+  : undefined;
 
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
@@ -18,7 +22,8 @@ app.get('/api/accounts', async (req, res) => {
       headers: {
         Authorization: `Bearer ${STARLING_TOKEN}`,
         'User-Agent': 'openbanking-demo'
-      }
+      },
+      agent: proxyAgent
     });
     const text = await response.text();
     let data;
@@ -48,7 +53,8 @@ app.get('/api/accounts/:accountUid/transactions', async (req, res) => {
       headers: {
         Authorization: `Bearer ${STARLING_TOKEN}`,
         'User-Agent': 'openbanking-demo'
-      }
+      },
+      agent: proxyAgent
     });
     const text = await response.text();
     let data;
