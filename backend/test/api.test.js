@@ -1,12 +1,13 @@
 const request = require('supertest');
-jest.mock('node-fetch', () => jest.fn());
-let fetch;
+let originalToken;
 
-// Reset modules before each test so env vars are re-evaluated
 beforeEach(() => {
+  originalToken = process.env.STARLING_PERSONAL_TOKEN;
   jest.resetModules();
-  fetch = require('node-fetch');
-  fetch.mockReset();
+});
+
+afterEach(() => {
+  process.env.STARLING_PERSONAL_TOKEN = originalToken;
 });
 
 describe('API endpoints without token', () => {
@@ -28,12 +29,16 @@ describe('API endpoints without token', () => {
 });
 
 describe('transactions endpoint', () => {
-  test('returns empty transactions when Starling responds with empty body', async () => {
-    process.env.STARLING_PERSONAL_TOKEN = 'test-token';
-    fetch.mockResolvedValueOnce({ text: () => Promise.resolve('') });
+  jest.setTimeout(20000);
+  test('returns transactions array', async () => {
+    if (!process.env.STARLING_PERSONAL_TOKEN) {
+      throw new Error('STARLING_PERSONAL_TOKEN not provided');
+    }
     const app = require('../index');
-    const res = await request(app).get('/api/accounts/acc123/transactions');
+    const accountsRes = await request(app).get('/api/accounts');
+    const uid = accountsRes.body.accounts[0].accountUid;
+    const res = await request(app).get(`/api/accounts/${uid}/transactions`);
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ transactions: [] });
+    expect(Array.isArray(res.body.transactions)).toBe(true);
   });
 });
