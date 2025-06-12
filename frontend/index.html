@@ -20,7 +20,10 @@
         React.useEffect(() => {
           fetch(`/api/accounts/${account.accountUid || account.uid}/transactions`)
             .then(res => res.json())
-            .then(data => setTx(data.transactions || (data._embedded && data._embedded.transactions) || data))
+            .then(data => {
+              const txs = data.transactions || (data._embedded && data._embedded.transactions);
+              setTx(Array.isArray(txs) ? txs : []);
+            })
             .catch(err => console.error('Failed to fetch transactions', err));
         }, [account]);
 
@@ -48,7 +51,10 @@
         React.useEffect(() => {
           fetch('/api/accounts')
             .then(res => res.json())
-            .then(data => setAccounts(data.accounts || data))
+            .then(data => {
+              const accs = data.accounts;
+              setAccounts(Array.isArray(accs) ? accs : []);
+            })
             .catch(err => console.error('Failed to fetch accounts', err));
         }, []);
 
