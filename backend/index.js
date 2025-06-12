@@ -20,7 +20,14 @@ app.get('/api/accounts', async (req, res) => {
         'User-Agent': 'openbanking-demo'
       }
     });
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : { transactions: [] };
+    } catch (parseErr) {
+      console.error('Invalid JSON from Starling', parseErr);
+      data = { transactions: [] };
+    }
     res.json(data);
   } catch (err) {
     console.error('Error fetching accounts', err);
@@ -43,7 +50,14 @@ app.get('/api/accounts/:accountUid/transactions', async (req, res) => {
         'User-Agent': 'openbanking-demo'
       }
     });
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : { transactions: [] };
+    } catch (parseErr) {
+      console.error('Invalid JSON from Starling', parseErr);
+      data = { transactions: [] };
+    }
     res.json(data);
   } catch (err) {
     console.error('Error fetching transactions', err);
